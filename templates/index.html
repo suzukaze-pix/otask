@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Otasuku</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-8">
+<div class="max-w-4xl mx-auto bg-white rounded-lg shadow-xl p-8">
+    <h1 class="text-3xl font-bold mb-8 text-center text-indigo-600">Otasuku</h1>
+
+    <div class="mb-8 bg-indigo-50 p-6 rounded-lg">
+        <h2 class="text-2xl font-semibold mb-4 text-indigo-800">新しいタスクを追加</h2>
+        <form action="{{ url_for('add_task') }}" method="post" enctype="multipart/form-data" class="space-y-4">
+            <input type="text" name="title" placeholder="タイトル" required class="w-full p-2 border border-gray-300 rounded">
+            <select name="importance" required class="w-full p-2 border border-gray-300 rounded">
+                <option value="Crazy">Crazy</option>
+                <option value="Great">Great</option>
+                <option value="Good">Good</option>
+            </select>
+            <textarea name="details" placeholder="詳細" class="w-full p-2 border border-gray-300 rounded"></textarea>
+            <h4 class="text-2xl font-semibold mb-4 text-indigo-800">時刻</h4>
+            <input type="time" name="deadline" required class="w-full p-2 border border-gray-300 rounded">
+            <h4 class="text-2xl font-semibold mb-4 text-indigo-800">褒められるときに流れる音声</h4>
+            <input type="file" name="audio" accept="audio/*" class="w-full p-2 border border-gray-300 rounded">
+            <button type="submit" class="w-full bg-indigo-600 text-white p-2 rounded hover:bg-indigo-700 transition">追加</button>
+        </form>
+    </div>
+
+    <h2 class="text-2xl font-semibold mb-4 text-indigo-800">タスク一覧</h2>
+    <div class="space-y-4">
+        {% for task in tasks %}
+        <div class="bg-white p-6 rounded-lg shadow {% if not task.completed and task.deadline < current_time %}border-l-4 border-red-500{% endif %}">
+            <h3 class="text-xl font-semibold mb-2">{{ task.title }}
+                <span class="text-sm font-normal text-gray-500">({{ task.importance }})</span>
+            </h3>
+            <p class="text-gray-600 mb-2">詳細: {{ task.details }}</p>
+            <p class="text-gray-600 mb-2">期限: {{ task.deadline.strftime('%H:%M') }}</p>
+            {% if not task.completed %}
+            <a href="{{ url_for('complete_task', task_id=task.id) }}"
+               onclick="playAudio('{{ task.audio }}')"
+               class="inline-block bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition">
+                完了
+            </a>
+            {% else %}
+            <span class="inline-block bg-gray-300 text-gray-700 px-4 py-2 rounded">完了済み</span>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    function playAudio(filename) {
+        if (filename) {
+            new Audio('/static/audio/' + filename).play();
+        }
+    }
+</script>
+</body>
+</html>
