@@ -8,7 +8,9 @@ tasks = []
 @app.route('/')
 def index():
     current_time = datetime.now().time()
+    print(current_time)
     return render_template('index.html', tasks=tasks, current_time=current_time)
+
 
 @app.route('/add_task', methods=['POST'])
 def add_task():
